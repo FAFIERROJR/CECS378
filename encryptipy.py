@@ -2,6 +2,7 @@ import os
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 def Mydecrypt(ciphertext, key, iv):
 	if len(key) < 32:
@@ -58,9 +59,18 @@ def MyfileEncrypt(filepath):
 	message = file.read()
 	print(message)
 	ciphertext, iv = Myencrypt(message, key)
+
+	file_data = ciphertext
+
+	new_file = open("encryptedfile" + file_extension, "wb")
+	
+	new_file.write(file_data)
 	return ciphertext, iv, key, file_extension
 
-def MyfileDecrypt(ciphertext, key, iv, file_extension):
+def MyfileDecrypt(filepath, key, iv, file_extension):
+	file = open(filepath, "rb")
+	ciphertext = file.read()
+
 	file_data = Mydecrypt(ciphertext, key, iv)
 	filename = "decryptedfile" + file_extension
 	
@@ -74,8 +84,19 @@ def MyfileDecrypt(ciphertext, key, iv, file_extension):
 
 
 
-#def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
+def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
+	ciphertext, iv, AES_key, file_extension = MyfileEncrypt(filepath)
 
+	RSA_key_file = open(RSA_Publickey_filepath)
+	public_key = serialization.load_pem_public_key(RSA_key_file, backend=default_backend())
+	AES_key_ciphertext = public_key.encrypt(
+		AES_key,
+		padding.OAEP(
+			mgf=padding.MGF1(algorithm=hashes.SHA1()),
+			algorithm=hashes.SHA1(),
+			label=None
+		)
+	)
 
-
+	return AES_key_ciphertext, ciphertext, iv, file_extension
 

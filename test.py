@@ -10,11 +10,18 @@ print(iv)
 message = enpy.Mydecrypt(ciphertext, key, iv)
 print(message)
 
-ciphertext, iv, key , file_extension = enpy.MyfileEncrypt("testtext.txt")
+ciphertext, iv, key , file_extension = enpy.MyfileEncrypt("dog.jpg")
 
 print(ciphertext)
 print(iv)
 print(key)
 print(file_extension)
 
-enpy.MyfileDecrypt(ciphertext, key, iv, file_extension)
+enpy.MyfileDecrypt("encryptedfile" + file_extension, key, iv, file_extension)
+
+key, ciphertext, iv, file_extension = enpy.MyRSAEncrypt("dog.jpg", "RSA_Public_key")
+
+print(ciphertext)
+print(iv)
+print(key)
+print(file_extension)
