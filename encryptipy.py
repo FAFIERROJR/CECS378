@@ -1,8 +1,21 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 26 14:11:51 2017
+
+@author: CECS
+"""
+
 import os
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.primitives import serialization
+
+
+#private_key = rsa.generate_private_key(public_exponent=65537,
+#key_size=2048,backend=default_backend())
 
 def Mydecrypt(ciphertext, key, iv):
 	if len(key) < 32:
@@ -84,12 +97,12 @@ def MyfileDecrypt(filepath, key, iv, file_extension):
 
 
 
-def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
+def MyRSAEncrypt(filepath, RSA_publickey_filepath):
 	ciphertext, iv, AES_key, file_extension = MyfileEncrypt(filepath)
 
-	RSA_key_file = open(RSA_Publickey_filepath)
-	public_key = serialization.load_pem_public_key(RSA_key_file, backend=default_backend())
-	AES_key_ciphertext = public_key.encrypt(
+	RSA_key_file = open(RSA_publickey_filepath)
+	public_key = load_pem_public_key(RSA_key_file, backend=default_backend())
+	RSACipher = public_key.encrypt(
 		AES_key,
 		padding.OAEP(
 			mgf=padding.MGF1(algorithm=hashes.SHA1()),
@@ -98,5 +111,25 @@ def MyRSAEncrypt(filepath, RSA_Publickey_filepath):
 		)
 	)
 
-	return AES_key_ciphertext, ciphertext, iv, file_extension
+	return RSACipher, ciphertext, iv, file_extension
 
+def MyRSADecrypt(RSACipher, filepath, iv, file_extension, RSA_privatekey_filepath):
+    
+    # load the private key
+    with open(RSA_privatekey_filepath, "rb") as key_file:
+        private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=None,
+                backend=default_backend()
+                )
+    # use the private key to decrypt the RSA encrypted AES key
+    AES_key = private_key.decrypt(
+            RSACipher,
+            padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                    algorithm=hashes.SHA1(),
+                    label=None
+                    )
+            )
+    # decrypt with key
+    MyfileDecrypt(filepath, AES_key, iv, file_extension)
