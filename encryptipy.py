@@ -10,8 +10,10 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.primitives.serialization import load_ssh_public_key
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding as apadding
 
 
 #private_key = rsa.generate_private_key(public_exponent=65537,
@@ -100,12 +102,16 @@ def MyfileDecrypt(filepath, key, iv, file_extension):
 def MyRSAEncrypt(filepath, RSA_publickey_filepath):
 	ciphertext, iv, AES_key, file_extension = MyfileEncrypt(filepath)
 
-	RSA_key_file = open(RSA_publickey_filepath)
-	public_key = load_pem_public_key(RSA_key_file, backend=default_backend())
+	with open(RSA_publickey_filepath, "rb") as key_file:
+		public_key = serialization.load_ssh_public_key(
+            	key_file.read(),
+            	backend=default_backend()
+            	)
+
 	RSACipher = public_key.encrypt(
 		AES_key,
-		padding.OAEP(
-			mgf=padding.MGF1(algorithm=hashes.SHA1()),
+		apadding.OAEP(
+			mgf=apadding.MGF1(algorithm=hashes.SHA1()),
 			algorithm=hashes.SHA1(),
 			label=None
 		)
@@ -125,8 +131,8 @@ def MyRSADecrypt(RSACipher, filepath, iv, file_extension, RSA_privatekey_filepat
     # use the private key to decrypt the RSA encrypted AES key
     AES_key = private_key.decrypt(
             RSACipher,
-            padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA1()),
+            apadding.OAEP(
+                    mgf=apadding.MGF1(algorithm=hashes.SHA1()),
                     algorithm=hashes.SHA1(),
                     label=None
                     )
