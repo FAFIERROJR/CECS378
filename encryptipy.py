@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives.serialization import load_ssh_public_key
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding as apadding
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 #private_key = rsa.generate_private_key(public_exponent=65537,
@@ -139,3 +140,29 @@ def MyRSADecrypt(RSACipher, filepath, iv, file_extension, RSA_privatekey_filepat
             )
     # decrypt with key
     MyfileDecrypt(filepath, AES_key, iv, file_extension)
+
+def genRSAkeys():
+	private_key = rsa.generate_private_key(
+	public_exponent=65537,
+	key_size=2048,
+	backend=default_backend()
+	)
+
+	pem = private_key.private_bytes(
+	encoding=serialization.Encoding.PEM,
+	format=serialization.PrivateFormat.PKCS8,
+	encryption_algorithm=serialization.BestAvailableEncryption(b'mypassword')
+	)
+
+	file = open("RSA_PrivateKey", "wb")
+	file.write(pem)
+
+	public_key = private_key.public_key()
+
+	pem = public_key.public_bytes(
+	encoding=serialization.Encoding.PEM,
+	format=serialization.PublicFormat.SubjectPublicKeyInfo
+	)
+
+	file = open("RSA_PublicKey", "wb")
+	file.write(pem)

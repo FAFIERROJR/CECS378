@@ -1,6 +1,8 @@
 import encryptipy as enpy
 import os
 
+enpy.genRSAkeys()
+
 key = os.urandom(32)
 ciphertext, iv = enpy.Myencrypt("Hello, World!", key)
 
