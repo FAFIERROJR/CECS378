@@ -1,31 +1,15 @@
 import encryptipy as enpy
 import os
 
-enpy.genRSAkeys()
+if(enpy.checkRSAKeys() == False):
+    enpy.genRSAkeys()
 
-key = os.urandom(32)
-ciphertext, iv = enpy.Myencrypt("Hello, World!", key)
+original_file_path = "dog.jpg"
+encrypted_file_path = "dog"
+RSA_public_key_path = "RSA_PublicKey"
+RSA_private_key_path = "RSA_PrivateKey"
 
-print(ciphertext)
-print(iv)
 
-message = enpy.Mydecrypt(ciphertext, key, iv)
-print(message)
+RSA_cipher, ciphertext, iv, tag, file_extension = enpy.MyRSAEncrypt(original_file_path, RSA_public_key_path)
 
-ciphertext, iv, key , file_extension = enpy.MyfileEncrypt("dog.jpg")
-
-print(ciphertext)
-print(iv)
-print(key)
-print(file_extension)
-
-enpy.MyfileDecrypt("encryptedfile" + file_extension, key, iv, file_extension)
-
-key, ciphertext, iv, file_extension = enpy.MyRSAEncrypt("dog.jpg", "RSA_PublicKey")
-
-print(ciphertext)
-print(iv)
-print(key)
-print(file_extension)
-
-enpy.MyRSADecrypt(key, "encryptedfile" + file_extension, iv, file_extension, "RSA_PrivateKey")
+enpy.MyRSADecrypt(RSA_cipher, encrypted_file_path, iv, tag, file_extension, RSA_private_key_path)
