@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+Encryption and Decryption methods
 Created on Thu Oct 26 14:11:51 2017
 
-@author: CECS
+@authors: Francisco Fierro and Daniel Wang
 """
 
 import os
@@ -13,10 +14,6 @@ from cryptography.hazmat.primitives import hashes, hmac
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding as apadding
 from cryptography.hazmat.primitives.asymmetric import rsa
-
-
-#private_key = rsa.generate_private_key(public_exponent=65537,
-#key_size=2048,backend=default_backend())
 
 def MydecryptMAC(ciphertext, tag, EncKey, HMACKey, iv):
 	if len(EncKey) < 32:
@@ -87,16 +84,16 @@ def MyfileEncryptMAC(filepath):
 	message = file.read()
 	ciphertext, iv, tag = MyencryptMAC(message, EncKey, HMACKey)
 
-	file_data = ciphertext
+	#file_data = ciphertext
 
-	new_file = open(filename , "wb")
+	#new_file = open(filename , "wb")
 	
-	new_file.write(file_data)
+	#new_file.write(file_data)
 	return ciphertext, iv, tag, EncKey, HMACKey, file_extension
 
-def MyfileDecryptMAC(filepath, Enckey, HMACKey, iv, tag, file_extension):
-	file = open(filepath, "rb")
-	ciphertext = file.read()
+def MyfileDecryptMAC(filepath, Enckey, HMACKey, ciphertext, iv, tag, file_extension):
+	#file = open(filepath, "rb")
+	#ciphertext = file.read()
 
 	file_data = MydecryptMAC(ciphertext, tag, Enckey, HMACKey, iv)
 	filename = filepath + file_extension
@@ -133,7 +130,7 @@ def MyRSAEncrypt(filepath, RSA_publickey_filepath):
 
 	return RSACipher, ciphertext, iv, tag, file_extension
 
-def MyRSADecrypt(RSACipher, filepath, iv, tag, file_extension, RSA_privatekey_filepath):
+def MyRSADecrypt(filepath, RSACipher, ciphertext, iv, tag, file_extension, RSA_privatekey_filepath):
 
 	# load the private key
 	with open(RSA_privatekey_filepath, "rb") as key_file:
@@ -156,7 +153,7 @@ def MyRSADecrypt(RSACipher, filepath, iv, tag, file_extension, RSA_privatekey_fi
 	HMACKey = keys[32:]
 
 	# decrypt with keys
-	MyfileDecryptMAC(filepath, EncKey, HMACKey, iv, tag, file_extension)
+	MyfileDecryptMAC(filepath, EncKey, HMACKey, ciphertext, iv, tag, file_extension)
 
 def genRSAkeys():
 	private_key = rsa.generate_private_key(
@@ -187,7 +184,7 @@ def genRSAkeys():
 def checkRSAKeys():
 	private_key_name = "RSA_PrivateKey"
 	public_key_name = "RSA_PublicKey"
-	files = os.listdir()
+	files = os.listdir(os.curdir)
 	keys_present = [False, False]
 
 	for f in files:
