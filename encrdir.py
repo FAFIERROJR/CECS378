@@ -24,7 +24,7 @@ print (files)
 for f in files:
     # don't encrypt keys, encryptor, decryptor, script, or directories
     # name the executable FileEncryptMAC
-    if (f != RSA_public_key_path and f!= RSA_private_key_path and f != "encryptipy.py" and f != "encrdir.py" and f != "decrdir.py" and f != "FileEncryptMAC" and f != "FileDecryptMAC" and os.path.isfile(f)):
+    if (f != RSA_public_key_path and f!= RSA_private_key_path and f != "encryptipy.py" and f != "encrdir.py" and f != "decrdir.py" and f != "FileEncryptMAC" and f != "FileDecryptMAC" and f!="encrdir" and f!="decrdir" and os.path.isfile(f)):
         print (f)
         # encrypted filename with json extension
         filename = os.path.splitext(f)[0] + ".json"
